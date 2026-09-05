@@ -244,8 +244,9 @@ PROFILES = {
 
 def classify_acoustic_signature(features):
     """
-    Robust multi-marker acoustic decision tree for 100% precision across real audio and ambient sounds.
-    Evaluates fundamental pitch (F0), spectral centroid, rhythmicity, high-frequency energy ratio, and RMS loudness.
+    Normalized K-Nearest-Neighbor acoustic classifier.
+    Computes minimum normalized distance across all 6 clinical reference centroids.
+    Zero-trapping guarantee: evaluates continuous acoustic distance space.
     """
     pitch = features["mean_pitch"]
     rms = features["rms_energy"]
@@ -254,49 +255,63 @@ def classify_acoustic_signature(features):
     high_ratio = features["high_freq_ratio"]
     flat = features["spectral_flatness"]
 
-    # Rule A: High frequency room hiss / mic noise (>3200Hz centroid with low RMS)
-    if spec_cent > 3200 and rms < 0.015:
-        probs = {"Normal / Cooing": 0.95, "Hunger": 0.01, "Pain / Colic": 0.01, "Discomfort (Diaper/Temp)": 0.01, "Tiredness / Overstimulated": 0.01, "Belly Gas / Reflux": 0.01}
-        return "Normal / Cooing", 0.95, probs
-
-    # Rule B: Adult speaking voice (<180Hz F0)
+    # Guard 1: Adult speaking voice (<180Hz F0)
     if pitch < 180 and spec_cent < 1800:
         probs = {"Normal / Cooing": 0.92, "Belly Gas / Reflux": 0.04, "Hunger": 0.02, "Discomfort (Diaper/Temp)": 0.01, "Tiredness / Overstimulated": 0.00, "Pain / Colic": 0.00}
         return "Normal / Cooing", 0.92, probs
 
-    # Rule 1: Hunger Cry (Flatness > 0.014 with 290Hz < pitch < 350Hz or low RMS)
-    if (flat > 0.014 and 290 <= pitch <= 350) or (flat > 0.012 and rhythm < 0.18 and rms < 0.005):
-        probs = {"Hunger": 0.85, "Discomfort (Diaper/Temp)": 0.08, "Tiredness / Overstimulated": 0.04, "Pain / Colic": 0.02, "Belly Gas / Reflux": 0.01, "Normal / Cooing": 0.00}
-        return "Hunger", 0.85, probs
+    # Guard 2: High frequency room hiss (>3500Hz centroid with low RMS)
+    if spec_cent > 3500 and rms < 0.015:
+        probs = {"Normal / Cooing": 0.95, "Hunger": 0.01, "Pain / Colic": 0.01, "Discomfort (Diaper/Temp)": 0.01, "Tiredness / Overstimulated": 0.01, "Belly Gas / Reflux": 0.01}
+        return "Normal / Cooing", 0.95, probs
 
-    # Rule 2: Normal Cooing / Content vocalization (Low centroid < 900Hz, low high ratio < 0.05)
-    if spec_cent < 900 and high_ratio < 0.05:
-        probs = {"Normal / Cooing": 0.98, "Discomfort (Diaper/Temp)": 0.01, "Hunger": 0.01, "Tiredness / Overstimulated": 0.00, "Belly Gas / Reflux": 0.00, "Pain / Colic": 0.00}
-        return "Normal / Cooing", 0.98, probs
+    sample_feat = {
+        "pitch": pitch,
+        "spec_cent": spec_cent,
+        "rhythm": rhythm,
+        "high_ratio": high_ratio,
+        "rms": rms,
+        "flatness": flat
+    }
 
-    # Rule 3: Belly Gas Grunts (High Centroid > 2000Hz, High Ratio > 0.65)
-    if spec_cent > 2000 or high_ratio > 0.65:
-        probs = {"Belly Gas / Reflux": 0.98, "Tiredness / Overstimulated": 0.01, "Pain / Colic": 0.01, "Discomfort (Diaper/Temp)": 0.00, "Hunger": 0.00, "Normal / Cooing": 0.00}
-        return "Belly Gas / Reflux", 0.98, probs
+    scales = {
+        "pitch": 100.0,
+        "spec_cent": 400.0,
+        "rhythm": 0.15,
+        "high_ratio": 0.15,
+        "rms": 0.05,
+        "flatness": 0.01
+    }
 
-    # Rule 4: Acute Pain / Colic Screams (Rhythm > 0.40 AND High Ratio > 0.50)
-    if rhythm > 0.40 and high_ratio > 0.50:
-        probs = {"Pain / Colic": 0.75, "Tiredness / Overstimulated": 0.15, "Hunger": 0.06, "Discomfort (Diaper/Temp)": 0.03, "Belly Gas / Reflux": 0.01, "Normal / Cooing": 0.00}
-        return "Pain / Colic", 0.75, probs
+    weights = {
+        "pitch": 1.5,
+        "spec_cent": 2.0,
+        "rhythm": 3.5,     # Increased weight for rhythmicity
+        "high_ratio": 3.5, # Increased weight for high-frequency ratio
+        "rms": 2.0,
+        "flatness": 1.0
+    }
 
-    # Rule 5: Tiredness / Sleepy Whimper (High Ratio > 0.50 with pitch > 430Hz)
-    if high_ratio > 0.50:
-        probs = {"Tiredness / Overstimulated": 0.72, "Pain / Colic": 0.18, "Discomfort (Diaper/Temp)": 0.06, "Hunger": 0.03, "Belly Gas / Reflux": 0.01, "Normal / Cooing": 0.00}
-        return "Tiredness / Overstimulated", 0.72, probs
+    distances = {}
+    for c_name, c_dict in PROFILES.items():
+        d2 = 0.0
+        for k, weight in weights.items():
+            val = sample_feat[k]
+            target = c_dict.get(k, c_dict.get("mean_pitch", 400.0) if k == "pitch" else 0.0)
+            scale = scales[k]
+            diff = (val - target) / scale
+            d2 += weight * (diff ** 2)
+        distances[c_name] = d2
 
-    # Rule 6: Discomfort / Diaper Fuss (Loudness RMS > 0.12)
-    if rms > 0.12:
-        probs = {"Discomfort (Diaper/Temp)": 0.78, "Tiredness / Overstimulated": 0.14, "Hunger": 0.05, "Pain / Colic": 0.02, "Belly Gas / Reflux": 0.01, "Normal / Cooing": 0.00}
-        return "Discomfort (Diaper/Temp)", 0.78, probs
+    temperature = 2.0
+    logits = {k: -0.5 * (d / temperature) for k, d in distances.items()}
+    max_l = max(logits.values())
+    exp_l = {k: np.exp(v - max_l) for k, v in logits.items()}
+    sum_exp = sum(exp_l.values())
+    probs = {k: round(float(v / sum_exp), 3) for k, v in exp_l.items()}
 
-    # Default Baseline: Normal Cooing
-    probs = {"Normal / Cooing": 0.85, "Hunger": 0.08, "Discomfort (Diaper/Temp)": 0.04, "Tiredness / Overstimulated": 0.02, "Belly Gas / Reflux": 0.01, "Pain / Colic": 0.00}
-    return "Normal / Cooing", 0.85, probs
+    top_label = max(probs, key=probs.get)
+    return top_label, probs[top_label], probs
 
 def load_audio_universal(file_path: str, target_sr: int = 16000, max_duration: float = 10.0):
     """
