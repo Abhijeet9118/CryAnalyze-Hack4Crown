@@ -1,7 +1,7 @@
 # 👑 CryAnalyze — AI-Powered Infant Cry Triage
 **Team Name:** Foxfin  
 **Track:** Track 02 — Tech4Health  
-**Hackathon:** Hack-4-Crown  
+**Hackathon:** Code Build 1.0  
 **Team Members:** Abhijeet (Team Lead), Jatin Gupta, Siddhant Yadav  
 
 ---
