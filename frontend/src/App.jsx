@@ -26,13 +26,10 @@ function App() {
       mediaRecorder.current.start();
       setIsRecording(true);
       setResult(null);
-      setStatusMessage('Recording live cry audio...');
+      setStatusMessage('Recording audio...');
     } catch (err) {
-      console.error("Microphone permission denied", err);
-      // Fail-safe mock recorded blob so recording works even if mic permission is blocked
-      const dummyBlob = new Blob([new Uint8Array(100)], { type: 'audio/wav' });
-      setAudioBlob(dummyBlob);
-      setStatusMessage('Audio sample ready.');
+      console.error("Microphone access denied", err);
+      alert('Microphone access required to record audio.');
     }
   };
 
@@ -49,7 +46,7 @@ function App() {
     if (file) {
       setAudioBlob(file);
       setResult(null);
-      setStatusMessage(`Selected: ${file.name}`);
+      setStatusMessage(`File selected: ${file.name}`);
     }
   };
 
@@ -57,37 +54,41 @@ function App() {
     if (!audioBlob) return;
     setIsAnalyzing(true);
     setResult(null);
-    setStatusMessage('Computing Mel-Spectrogram & ML Triage...');
+    setStatusMessage('Analyzing audio spectrum...');
 
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recorded_cry.wav');
+    formData.append('audio', audioBlob, 'cry_audio.wav');
 
-    // Fail-safe Execution: Try API first, then local fallback without breaking alerts
     try {
       const targetUrl = `${apiUrl.replace(/\/$/, '')}/analyze`;
       const response = await axios.post(targetUrl, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 4000
+        timeout: 45000
       });
       setResult(response.data);
       setStatusMessage('Analysis complete.');
     } catch (error) {
-      console.warn('Backend unavailable, running fail-safe client triage engine...', error);
+      console.warn('Primary backend failed, attempting local fallback...', error);
       
-      // Generate instant fallback result so demo NEVER breaks for judges or users!
-      setTimeout(() => {
-        const categories = [
-          { label: "Hunger", confidence: 0.89, escalate: false, message: "Baby is likely hungry. Try soothing and feeding." },
-          { label: "Pain", confidence: 0.94, escalate: true, message: "High-pitch distress detected. Escalate: Consult a pediatrician if persistent." },
-          { label: "Discomfort", confidence: 0.82, escalate: false, message: "Discomfort pattern detected. Check diaper and temperature." },
-          { label: "Tiredness", confidence: 0.88, escalate: false, message: "Baby is tired. Dim the lights and rock gently." }
-        ];
-        const selected = categories[Math.floor(Math.random() * categories.length)];
-        setResult(selected);
-        setStatusMessage('Triage analysis complete.');
-        setIsAnalyzing(false);
-      }, 1000);
-      return;
+      if (apiUrl !== 'http://localhost:8000') {
+        try {
+          setStatusMessage('Trying local server...');
+          const fallbackResponse = await axios.post('http://localhost:8000/analyze', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            timeout: 5000
+          });
+          setResult(fallbackResponse.data);
+          setApiUrl('http://localhost:8000');
+          setStatusMessage('Connected via local server.');
+          setIsAnalyzing(false);
+          return;
+        } catch (localErr) {
+          console.error('Local fallback failed', localErr);
+        }
+      }
+      
+      alert(`Could not connect to FastAPI backend at ${apiUrl}. Please ensure the backend is running.`);
+      setStatusMessage('Backend connection error.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -106,6 +107,30 @@ function App() {
           <span className="font-semibold tracking-widest text-xs uppercase">Code Build 1.0</span>
         </div>
       </header>
+
+      {/* Backend Settings Bar */}
+      <div className="w-full max-w-3xl mb-6 bg-slate-800/60 p-3 rounded-lg border border-slate-700/80 flex flex-col sm:flex-row items-center justify-between text-xs gap-2">
+        <div className="flex items-center text-slate-400">
+          <Server size={14} className="mr-2 text-cyan-400" />
+          <span>Backend Server API:</span>
+        </div>
+        <div className="flex items-center space-x-2 w-full sm:w-auto">
+          <input 
+            type="text" 
+            value={apiUrl} 
+            onChange={(e) => setApiUrl(e.target.value)}
+            className="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs w-full sm:w-72 focus:outline-none focus:border-cyan-400"
+            placeholder="http://localhost:8000"
+          />
+          <button 
+            onClick={() => setApiUrl('http://localhost:8000')} 
+            className="bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-slate-300 transition-all whitespace-nowrap"
+            title="Use Localhost"
+          >
+            Local
+          </button>
+        </div>
+      </div>
 
       {/* Main Container */}
       <main className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -143,7 +168,7 @@ function App() {
                   className="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-2.5 px-6 rounded-lg transition-all disabled:opacity-50 flex items-center shadow-lg text-sm"
                 >
                   {isAnalyzing ? (
-                    <><Activity className="animate-spin mr-2" size={18}/> Analyzing...</>
+                    <><Activity className="animate-spin mr-2" size={18}/> Processing Spectrum...</>
                   ) : (
                     "Extract Mel-Spectrogram & ML Triage..."
                   )}
@@ -169,7 +194,7 @@ function App() {
           {isAnalyzing && (
             <div className="flex-1 flex flex-col items-center justify-center text-cyan-400 py-6">
               <Activity className="animate-pulse mb-3 text-cyan-400" size={40} />
-              <p className="text-sm font-medium">Analyzing Infant Vocal Signature...</p>
+              <p className="text-sm font-medium">Extracting Mel-Spectrogram & MFCCs...</p>
               <p className="text-xs text-slate-400 mt-2">{statusMessage}</p>
             </div>
           )}
