@@ -299,7 +299,7 @@ function App() {
     try {
       let blob;
       try {
-        const response = await fetch(`/samples/${preset.file}`);
+        const response = await fetch(`${import.meta.env.BASE_URL}samples/${preset.file}`);
         if (!response.ok) throw new Error('Local sample fetch returned ' + response.status);
         blob = await response.blob();
       } catch (localErr) {
