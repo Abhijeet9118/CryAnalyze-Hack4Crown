@@ -1,0 +1,79 @@
+[
+  {
+    "id": "cry-101",
+    "baby_name": "Baby Liam",
+    "timestamp": "2026-08-23T15:21:23.490627",
+    "prediction": "Hunger",
+    "confidence": 0.96,
+    "escalate": false,
+    "triage_level": 1,
+    "duration_sec": 42,
+    "notes": "Fed 120ml formula, settled promptly."
+  },
+  {
+    "id": "cry-102",
+    "baby_name": "Baby Liam",
+    "timestamp": "2026-08-24T17:21:23.490627",
+    "prediction": "Discomfort (Diaper/Temp)",
+    "confidence": 0.91,
+    "escalate": false,
+    "triage_level": 1,
+    "duration_sec": 30,
+    "notes": "Diaper wetness changed, calm immediately."
+  },
+  {
+    "id": "cry-103",
+    "baby_name": "Baby Liam",
+    "timestamp": "2026-08-25T00:21:23.490627",
+    "prediction": "Belly Gas / Reflux",
+    "confidence": 0.94,
+    "escalate": false,
+    "triage_level": 2,
+    "duration_sec": 65,
+    "notes": "Burped after bicycle legs maneuver."
+  },
+  {
+    "id": "cry-104",
+    "baby_name": "Baby Liam",
+    "timestamp": "2026-08-25T23:21:23.490627",
+    "prediction": "Pain / Colic",
+    "confidence": 0.98,
+    "escalate": true,
+    "triage_level": 3,
+    "duration_sec": 120,
+    "notes": "Evening intense crying episode. Football hold helped."
+  },
+  {
+    "id": "cry-105",
+    "baby_name": "Baby Liam",
+    "timestamp": "2026-08-26T23:21:23.490627",
+    "prediction": "Pain / Colic",
+    "confidence": 0.97,
+    "escalate": true,
+    "triage_level": 3,
+    "duration_sec": 95,
+    "notes": "Witching hour peak at 8:30 PM."
+  },
+  {
+    "id": "cry-106",
+    "baby_name": "Baby Liam",
+    "timestamp": "2026-08-28T11:21:23.490627",
+    "prediction": "Tiredness / Overstimulated",
+    "confidence": 0.92,
+    "escalate": false,
+    "triage_level": 1,
+    "duration_sec": 25,
+    "notes": "Swaddled and played white noise."
+  },
+  {
+    "id": "cry-107",
+    "baby_name": "Baby Liam",
+    "timestamp": "2026-08-29T16:21:23.490627",
+    "prediction": "Hunger",
+    "confidence": 0.99,
+    "escalate": false,
+    "triage_level": 1,
+    "duration_sec": 38,
+    "notes": "Morning feed, calm."
+  }
+]
