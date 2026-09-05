@@ -4,9 +4,9 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // Ensures relative assets load on GitHub Pages
+  base: '/CryAnalyze-Hack4Crown/', // Exact GitHub repository name base path
   build: {
-    outDir: '../docs', // Output production build into docs/ folder for GitHub Pages
+    outDir: '../docs',
     emptyOutDir: true,
   }
 })
