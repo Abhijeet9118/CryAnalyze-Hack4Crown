@@ -1,13 +1,10 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
-import { Mic, Upload, Activity, AlertTriangle, CheckCircle, ShieldCheck, Server, RefreshCw } from 'lucide-react';
+import { Mic, Upload, Activity, AlertTriangle, CheckCircle, ShieldCheck, Server } from 'lucide-react';
 
-// Smart API URL Detection:
-// Localhost uses http://localhost:8000
-// Deployed GitHub Pages uses Render backend or local fallback
-const DEFAULT_API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:8000'
-  : 'https://cryanalyze-hack4crown.onrender.com';
+// Default to Render Online Backend for public web access
+// Users on any phone or laptop anywhere in the world will connect seamlessly!
+const DEFAULT_API_URL = 'https://cryanalyze-hack4crown.onrender.com';
 
 function App() {
   const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
@@ -64,7 +61,6 @@ function App() {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'cry_audio.wav');
 
-    // Attempt 1: Send to primary API URL
     try {
       const targetUrl = `${apiUrl.replace(/\/$/, '')}/analyze`;
       const response = await axios.post(targetUrl, formData, {
@@ -76,10 +72,10 @@ function App() {
     } catch (error) {
       console.warn('Primary backend failed, attempting local fallback...', error);
       
-      // Attempt 2: Fallback to localhost if running locally
+      // Fallback to localhost if running locally
       if (apiUrl !== 'http://localhost:8000') {
         try {
-          setStatusMessage('Primary cloud waking up... Trying local server...');
+          setStatusMessage('Connecting via local fallback...');
           const fallbackResponse = await axios.post('http://localhost:8000/analyze', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
             timeout: 5000
@@ -90,11 +86,11 @@ function App() {
           setIsAnalyzing(false);
           return;
         } catch (localErr) {
-          console.error('Local fallback also failed', localErr);
+          console.error('Local fallback failed', localErr);
         }
       }
       
-      alert(`Could not connect to backend server at: ${apiUrl}\n\nTip: If using Render free tier, wait 30 seconds for server to wake up, or make sure your Render web service status is Live!`);
+      alert(`Could not connect to backend server at: ${apiUrl}\n\nNote: If using Render free tier for the first time, wait 30 seconds for the cloud server to wake up, or paste your exact Render backend URL in the bar above!`);
       setStatusMessage('Backend connection error.');
     } finally {
       setIsAnalyzing(false);
@@ -119,15 +115,15 @@ function App() {
       <div className="w-full max-w-3xl mb-6 bg-slate-800/60 p-3 rounded-lg border border-slate-700/80 flex flex-col sm:flex-row items-center justify-between text-xs gap-2">
         <div className="flex items-center text-slate-400">
           <Server size={14} className="mr-2 text-cyan-400" />
-          <span>Backend Server:</span>
+          <span>Backend Server API:</span>
         </div>
         <div className="flex items-center space-x-2 w-full sm:w-auto">
           <input 
             type="text" 
             value={apiUrl} 
             onChange={(e) => setApiUrl(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs w-full sm:w-64 focus:outline-none focus:border-cyan-400"
-            placeholder="http://localhost:8000"
+            className="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 text-xs w-full sm:w-72 focus:outline-none focus:border-cyan-400"
+            placeholder="https://cryanalyze-hack4crown.onrender.com"
           />
           <button 
             onClick={() => setApiUrl('http://localhost:8000')} 
