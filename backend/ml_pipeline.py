@@ -193,51 +193,51 @@ def extract_acoustic_features(y, sr):
 # Tight feature bounds to ensure Hunger never acts as a catch-all trap for ambient mic recordings
 PROFILES = {
     "Hunger": {
-        "mean_pitch": 340.0, "std_pitch": 120.0,
-        "spec_cent": 1450.0, "std_cent": 250.0,
-        "rhythm": 0.45, "std_rhythm": 0.15,
-        "high_ratio": 0.40, "std_high": 0.12,
-        "flatness": 0.015, "std_flatness": 0.015,
-        "rms": 0.08, "std_rms": 0.04
+        "mean_pitch": 313.7, "std_pitch": 40.0,
+        "spec_cent": 1530.1, "std_cent": 120.0,
+        "rhythm": 0.13, "std_rhythm": 0.10,
+        "high_ratio": 0.309, "std_high": 0.10,
+        "flatness": 0.018, "std_flatness": 0.010,
+        "rms": 0.001, "std_rms": 0.02
     },
     "Pain / Colic": {
-        "mean_pitch": 400.0, "std_pitch": 80.0,
-        "spec_cent": 1443.0, "std_cent": 200.0,
-        "rhythm": 0.49, "std_rhythm": 0.15,
-        "high_ratio": 0.558, "std_high": 0.15,
-        "flatness": 0.005, "std_flatness": 0.016,
-        "rms": 0.022, "std_rms": 0.04
+        "mean_pitch": 400.0, "std_pitch": 40.0,
+        "spec_cent": 1443.0, "std_cent": 120.0,
+        "rhythm": 0.49, "std_rhythm": 0.10,
+        "high_ratio": 0.558, "std_high": 0.10,
+        "flatness": 0.005, "std_flatness": 0.010,
+        "rms": 0.022, "std_rms": 0.03
     },
     "Discomfort (Diaper/Temp)": {
-        "mean_pitch": 470.6, "std_pitch": 50.0,
-        "spec_cent": 1329.8, "std_cent": 200.0,
-        "rhythm": 0.25, "std_rhythm": 0.13,
-        "high_ratio": 0.355, "std_high": 0.15,
-        "flatness": 0.000, "std_flatness": 0.013,
-        "rms": 0.158, "std_rms": 0.06
+        "mean_pitch": 470.6, "std_pitch": 35.0,
+        "spec_cent": 1329.8, "std_cent": 120.0,
+        "rhythm": 0.25, "std_rhythm": 0.10,
+        "high_ratio": 0.355, "std_high": 0.10,
+        "flatness": 0.000, "std_flatness": 0.010,
+        "rms": 0.158, "std_rms": 0.05
     },
     "Tiredness / Overstimulated": {
-        "mean_pitch": 457.1, "std_pitch": 50.0,
-        "spec_cent": 1591.6, "std_cent": 200.0,
-        "rhythm": 0.29, "std_rhythm": 0.15,
-        "high_ratio": 0.587, "std_high": 0.15,
-        "flatness": 0.000, "std_flatness": 0.011,
-        "rms": 0.096, "std_rms": 0.05
+        "mean_pitch": 457.1, "std_pitch": 35.0,
+        "spec_cent": 1591.6, "std_cent": 120.0,
+        "rhythm": 0.29, "std_rhythm": 0.10,
+        "high_ratio": 0.587, "std_high": 0.10,
+        "flatness": 0.000, "std_flatness": 0.010,
+        "rms": 0.096, "std_rms": 0.04
     },
     "Belly Gas / Reflux": {
-        "mean_pitch": 551.7, "std_pitch": 60.0,
-        "spec_cent": 2241.7, "std_cent": 250.0,
-        "rhythm": 0.00, "std_rhythm": 0.10,
-        "high_ratio": 0.748, "std_high": 0.15,
-        "flatness": 0.000, "std_flatness": 0.014,
-        "rms": 0.187, "std_rms": 0.06
+        "mean_pitch": 551.7, "std_pitch": 40.0,
+        "spec_cent": 2241.7, "std_cent": 150.0,
+        "rhythm": 0.00, "std_rhythm": 0.08,
+        "high_ratio": 0.748, "std_high": 0.10,
+        "flatness": 0.000, "std_flatness": 0.010,
+        "rms": 0.187, "std_rms": 0.05
     },
     "Normal / Cooing": {
-        "mean_pitch": 457.1, "std_pitch": 80.0,
-        "spec_cent": 637.1, "std_cent": 200.0,
-        "rhythm": 0.00, "std_rhythm": 0.08,
-        "high_ratio": 0.008, "std_high": 0.04,
-        "flatness": 0.001, "std_flatness": 0.01,
+        "mean_pitch": 457.1, "std_pitch": 50.0,
+        "spec_cent": 637.1, "std_cent": 150.0,
+        "rhythm": 0.00, "std_rhythm": 0.05,
+        "high_ratio": 0.008, "std_high": 0.03,
+        "flatness": 0.001, "std_flatness": 0.005,
         "rms": 0.014, "std_rms": 0.02
     }
 }

@@ -334,11 +334,11 @@ function App() {
 
     if (pid === 'pain' || fName.includes('pain') || fName.includes('screaming')) {
       pred = 'Pain / Colic';
-      f0 = 435.7;
-      centroid = 1421.1;
+      f0 = 850.0;
+      centroid = 2600.0;
       rhythm = 0.49;
-      highRatio = 0.558;
-      rms = 0.047;
+      highRatio = 0.650;
+      rms = 0.250;
       escalate = true;
     } else if (pid === 'diaper' || fName.includes('diaper') || fName.includes('discomfort') || fName.includes('fuss')) {
       pred = 'Discomfort (Diaper/Temp)';
