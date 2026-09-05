@@ -13,6 +13,21 @@ frontend/node_modules/
 frontend/dist/
 frontend/.cache/
 
+# PDF & Generator Scripts (Internal Guides)
+*.pdf
+generate_*.py
+generate_pdf.py
+start_prototype.bat
+CryAnalyze_*.md
+backend/debug_*.py
+backend/test_*.py
+backend/eval_*.py
+backend/calibrate_*.py
+backend/deep_*.py
+backend/process_*.py
+backend/download_*.py
+backend/temp_dataset/
+
 # System / IDE
 .DS_Store
 Thumbs.db
